@@ -1,1 +1,16 @@
 az network nsg rule list -g MyResourceGroup --nsg-name MyNsg --query '[].{Name: name, Priority: priority, Direction: direction, Access: access, SourceAddressPrefix: sourceAddressPrefix, SourcePortRange: sourcePortRange, DestinationAddressPrefix: destinationAddressPrefix, DestinationPortRange: destinationPortRange}' --output json | jq -r '.[] | [.Name, .Priority, .Direction, .Access, .SourceAddressPrefix, .SourcePortRange, .DestinationAddressPrefix, .DestinationPortRange] | @csv' > nsg_rules.csv
+
+az network nsg rule list -g MyResourceGroup --nsg-name MyNsg --include-default --query '[].{Name: name, Priority: priority, Direction: direction, Access: access, SourceAddressPrefix: sourceAddressPrefix, SourceAddressPrefixes: sourceAddressPrefixes, SourcePortRange: sourcePortRange, SourcePortRanges: sourcePortRanges, DestinationAddressPrefix: destinationAddressPrefix, DestinationAddressPrefixes: destinationAddressPrefixes, DestinationPortRange: destinationPortRange, DestinationPortRanges: destinationPortRanges}' --output json | jq -r '.[] | [
+    .Name,
+    .Priority,
+    .Direction,
+    .Access,
+    if .SourceAddressPrefix then .SourceAddressPrefix else "" end,
+    if .SourceAddressPrefixes then .SourceAddressPrefixes[0] else "" end,  # Assuming you want the first element if it exists
+    if .SourcePortRange then .SourcePortRange else "" end,
+    if .SourcePortRanges then .SourcePortRanges[0] else "" end,  # Assuming you want the first element if it exists
+    if .DestinationAddressPrefix then .DestinationAddressPrefix else "" end,
+    if .DestinationAddressPrefixes then .DestinationAddressPrefixes[0] else "" end,  # Assuming you want the first element if it exists
+    if .DestinationPortRange then .DestinationPortRange else "" end,
+    if .DestinationPortRanges then .DestinationPortRanges[0] else "" end  # Assuming you want the first element if it exists
+] | @csv' > dev_nsg_rules.csv
